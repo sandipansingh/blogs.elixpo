@@ -12,6 +12,10 @@ import { kvInvalidate } from '../../../../lib/cache';
 // Signature (must match payouts webhooks.ts):
 //   X-Elixpo-Pay-Timestamp: <unix seconds>
 //   X-Elixpo-Pay-Signature: sha256=<hex HMAC-SHA256(`${ts}.${rawBody}`, ELIXPO_PAY_WEBHOOK_SECRET)>
+//
+// ELIXPO_PAY_WEBHOOK_SECRET is our PER-APP signing secret (whsec_…), shown in
+// the Elixpo Pay dashboard under this product's "Entitlement webhook" — not a
+// shared global secret. Roll it there and update this env to match.
 export async function POST(request) {
   const secret = process.env.ELIXPO_PAY_WEBHOOK_SECRET;
   if (!secret) {
