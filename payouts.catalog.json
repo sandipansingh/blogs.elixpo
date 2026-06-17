@@ -1,5 +1,9 @@
 {
   "$comment": "Elixpo Pay catalog for blogs.elixpo. Source of truth for the central catalog (payouts.elixpo.com). Edit here, then `npm run sync:tiers` to push. Representative tiers only: India (INR) + global headline (USD T1). PPP bands (T2/T3) stay blogs-side and apply at checkout via currency.",
+  "app": {
+    "homepage_url": "https://blogs.elixpo.com",
+    "pricing_url": "https://blogs.elixpo.com/pricing"
+  },
   "products": [
     {
       "tier": "member",
