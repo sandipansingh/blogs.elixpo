@@ -21,6 +21,11 @@ export const BlogImageBlock = createReactBlockSpec(
       previewWidth: { default: 740 },
       name: { default: '' },
       showPreview: { default: true },
+      // email/export fields (2.7.0)
+      alt: { default: '' },
+      width: { default: '' },
+      align: { default: '' },
+      link: { default: '' },
     },
     content: 'none',
   },

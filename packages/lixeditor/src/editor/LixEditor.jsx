@@ -26,6 +26,7 @@ import { MermaidBlock } from '../blocks/MermaidBlock';
 import { TableOfContents } from '../blocks/TableOfContents';
 import { InlineEquation } from '../blocks/InlineEquation';
 import { DateInline } from '../blocks/DateInline';
+import { VariableInline, setVariableSuggestions } from '../blocks/VariableInline';
 
 // Optional blocks — imported but can be disabled via config
 import { BlogImageBlock as ImageBlock } from '../blocks/ImageBlock';
@@ -35,6 +36,7 @@ import { PDFEmbedBlock } from '../blocks/PDFEmbedBlock';
 // Utilities
 import LinkPreviewTooltip, { useLinkPreview, setLinkPreviewEndpoint } from './LinkPreviewTooltip';
 import { LixUploadContext } from './uploadConfig';
+import { renderBlocksToHTML } from '../preview/renderBlocks';
 
 // Default code block languages
 const DEFAULT_LANGUAGES = {
@@ -164,6 +166,7 @@ const LixEditor = forwardRef(function LixEditor({
     const inlineContentSpecs = { ...defaultInlineContentSpecs };
     if (f.equations) inlineContentSpecs.inlineEquation = InlineEquation;
     if (f.dates) inlineContentSpecs.dateInline = DateInline;
+    inlineContentSpecs.lixVariable = VariableInline;
 
     // Register extra inline specs
     for (const spec of extraInlineSpecs) {
@@ -195,7 +198,10 @@ const LixEditor = forwardRef(function LixEditor({
     getDocument: () => editor.document,
     getEditor: () => editor,
     getBlocks: () => editor.document,
-    getHTML: async () => await editor.blocksToHTMLLossy(editor.document),
+    // Email-safe HTML: bulletproof buttons, inline-styled images, {{vars}} round-trip.
+    getHTML: () => renderBlocksToHTML(editor.document),
+    // BlockNote's lossy HTML, if a consumer wants the editor-DOM flavour instead.
+    getHTMLLossy: async () => await editor.blocksToHTMLLossy(editor.document),
     getMarkdown: async () => await editor.blocksToMarkdownLossy(editor.document),
   }), [editor]);
 
@@ -213,6 +219,9 @@ const LixEditor = forwardRef(function LixEditor({
       try { editor.isEditable = editable; } catch {}
     }
   }, [editor, editable]);
+
+  // Host-supplied merge-variable suggestions for the {{variable}} chip.
+  useEffect(() => { setVariableSuggestions(variableSuggestions || []); }, [variableSuggestions]);
 
   // Auto-convert ![alt](url) to image block and [text](url) to link as you type
   useEffect(() => {
@@ -398,6 +407,19 @@ const LixEditor = forwardRef(function LixEditor({
         },
       });
     }
+
+    custom.push({
+      title: 'Variable',
+      subtext: 'Insert a {{merge variable}} (exports as literal text)',
+      group: 'Advanced',
+      aliases: ['variable', 'merge', 'token', 'field', '{{'],
+      icon: <span style={{ fontSize: 13, fontFamily: 'monospace' }}>{'{}'}</span>,
+      onItemClick: () => {
+        try {
+          editor._tiptapEditor.commands.insertContent({ type: 'lixVariable', attrs: { name: '' } });
+        } catch {}
+      },
+    });
 
     if (f.buttons) {
       custom.push({
