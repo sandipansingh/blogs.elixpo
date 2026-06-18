@@ -2,6 +2,7 @@
 
 import { createReactBlockSpec } from '@blocknote/react';
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useUploadConfig } from '../editor/uploadConfig';
 
 /**
  * Image block for @elixpo/lixeditor.
@@ -30,6 +31,7 @@ export const BlogImageBlock = createReactBlockSpec(
 
 function ImageRenderer({ block, editor }) {
   const { url, caption } = block.props;
+  const { uploadFile: hostUpload, acceptImageTypes, maxFileSizeBytes, onUploadError } = useUploadConfig();
   const [mode, setMode] = useState('idle'); // idle | embed | uploading
   const [embedUrl, setEmbedUrl] = useState('');
   const [embedError, setEmbedError] = useState('');
