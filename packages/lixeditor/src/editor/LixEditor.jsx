@@ -423,10 +423,17 @@ const LixEditor = forwardRef(function LixEditor({
     if (onChange) onChange(editor);
   }, [editor, onChange]);
 
+  const uploadCfg = useMemo(
+    () => ({ uploadFile, acceptImageTypes, maxFileSizeBytes, onUploadError }),
+    [uploadFile, acceptImageTypes, maxFileSizeBytes, onUploadError],
+  );
+
   return (
+    <LixUploadContext.Provider value={uploadCfg}>
     <div className={`lix-editor-wrapper${''}`} ref={wrapperRef} style={{ position: 'relative' }}>
       <BlockNoteView
         editor={editor}
+        editable={editable}
         onChange={handleChange}
         theme={isDark ? 'dark' : 'light'}
         slashMenu={false}
